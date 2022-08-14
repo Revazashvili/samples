@@ -1,7 +1,6 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0-alpine3.14 AS base
+FROM mcr.microsoft.com/dotnet/runtime-deps:6.0-alpine3.14 AS base
 WORKDIR /app
 EXPOSE 80
-EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine3.14 as publish
 WORKDIR /src
