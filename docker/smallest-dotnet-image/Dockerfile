@@ -1,5 +1,12 @@
 FROM mcr.microsoft.com/dotnet/runtime-deps:6.0-alpine3.14 AS base
 WORKDIR /app
+
+RUN adduser --disabled-password \
+  --home /app \
+  --gecos '' dotnetuser && chown -R dotnetuser /app
+
+USER dotnetuser
+
 EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine3.14 as publish
