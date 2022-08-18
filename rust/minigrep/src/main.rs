@@ -3,7 +3,7 @@ mod lib;
 use std::env;
 use std::process;
 
-use lib::{search,Config};
+use lib::{run, Config};
 
 fn main() {
     let config = Config::new(env::args().collect())
@@ -15,7 +15,7 @@ fn main() {
     println!("Searching for {}",config.query);
     println!("In file {}",config.filename);
 
-    if let Err(e) = search(config){
+    if let Err(e) = run(config){
         println!("Application error: {}",e);
         process::exit(1);
     }
