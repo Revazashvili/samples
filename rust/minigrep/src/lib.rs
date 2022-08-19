@@ -28,7 +28,6 @@ impl Config {
             return Err("not enough arguments");
         }
         let case_sensitive = env::var("CASE_SENSITIVE").is_ok();
-        println!("case_sensitive: {}",case_sensitive);
         Ok(Config { query:args[1].clone(), filename:args[2].clone(),case_sensitive })
     }
 }
