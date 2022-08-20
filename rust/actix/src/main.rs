@@ -1,4 +1,4 @@
-use actix_web::{get, post, put, delete, web, App, HttpRequest, HttpResponse, HttpServer, Responder, ResponseError, CustomizeResponder};
+use actix_web::{get, post, put, delete, web, App, HttpRequest, HttpResponse, HttpServer, Responder, ResponseError};
 use actix_web::http::header::ContentType;
 use actix_web::http::StatusCode;
 use actix_web::body::BoxBody;
@@ -33,7 +33,7 @@ async fn main() -> std::io::Result<()> {
 }
 
 #[post("/tickets")]
-async fn post_ticket(req: HttpRequest,ticket: web::Json<Ticket>,data: web::Data<AppState>) -> impl Responder {
+async fn post_ticket(ticket: web::Json<Ticket>,data: web::Data<AppState>) -> impl Responder {
     println!("{:?}",ticket);
     let new_ticket = Ticket::new(ticket.id, String::from(&ticket.author));    
     let mut tickets = data.tickets.lock().unwrap();
