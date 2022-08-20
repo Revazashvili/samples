@@ -4,6 +4,7 @@ use actix_web::http::StatusCode;
 use actix_web::body::BoxBody;
 
 use serde::{Serialize, Deserialize};
+use serde_json::json;
 
 use std::fmt::Display;
 use std::sync::Mutex;
@@ -49,12 +50,7 @@ async fn post_ticket(ticket: web::Json<Ticket>,data: web::Data<AppState>) -> imp
 #[get("/tickets")]
 async fn get_tickets(data: web::Data<AppState>) -> impl Responder{
     let tickets = data.tickets.lock().unwrap();
-    
-    let response = serde_json::to_string(tickets.as_slice()).unwrap();
-
-    HttpResponse::Ok()
-        .content_type(ContentType::json())
-        .body(response)
+    web::Json(json!(*tickets))
 }
 
 #[get("/tickets/{id}")]
@@ -62,18 +58,9 @@ async fn get_ticket(data: web::Data<AppState>, id: web::Path<u32>) -> Result<Tic
     let tickets = data.tickets.lock().unwrap();
     let ticket_id = *id;
 
-    let ticket = tickets.iter()
-        .find(|x| x.id == ticket_id);
-    
-    match ticket  {
-        Some(ticket) => Ok(Ticket{
-            id: ticket.id,
-            author: String::from(&ticket.author),
-        }),
-        None => Err(ErrNoId{
-            id: ticket_id,
-            err: String::from("Ticket not found"),
-        })
+    match tickets.iter().find(|x| x.id == ticket_id)  {
+        Some(ticket) => Ok(Ticket{ id: ticket.id,author: String::from(&ticket.author)}),
+        None => Err(ErrNoId{id: ticket_id,err: String::from("Ticket not found")})
     }
 }
 
@@ -82,10 +69,7 @@ async fn update_ticket(data: web::Data<AppState>, id: web::Path<u32>, ticket: we
     let ticket_id = *id;
     let mut tickets = data.tickets.lock().unwrap();
 
-    let new_ticket = Ticket{
-        id: ticket.id,
-        author: String::from(&ticket.author),
-    };
+    let new_ticket = Ticket{id: ticket.id,author: String::from(&ticket.author)};
 
     let position = tickets.iter()
         .position(|x| x.id == ticket_id);
@@ -97,10 +81,7 @@ async fn update_ticket(data: web::Data<AppState>, id: web::Path<u32>, ticket: we
             Ok(HttpResponse::Ok()
             .content_type(ContentType::json()).body(response))
         },
-        None => Err(ErrNoId{
-            id: ticket_id,
-            err: String::from("Ticket not found"),
-        })
+        None => Err(ErrNoId{id: ticket_id,err: String::from("Ticket not found")})
     }
 }
 
@@ -109,18 +90,9 @@ async fn delete_ticket(id:web::Path<u32>,data: web::Data<AppState>) -> Result<Ti
     let ticket_id = *id;
     let mut tickets = data.tickets.lock().unwrap();
 
-    let position = tickets.iter()
-        .position(|x| x.id == ticket_id);
-    
-    match position{
-        Some(id) => {
-            let deleted_ticket = tickets.remove(id);
-            Ok(deleted_ticket)
-        },
-        None => Err(ErrNoId{
-            id: ticket_id,
-            err: String::from("Ticket not found"),
-        })
+    match tickets.iter().position(|x| x.id == ticket_id) {
+        Some(id) => Ok(tickets.remove(id)),
+        None => Err(ErrNoId{id: ticket_id,err: String::from("Ticket not found")})
     }
 }
 
@@ -167,7 +139,5 @@ impl ResponseError for ErrNoId {
 }
 
 impl Display for ErrNoId {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
-    }
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { write!(f, "{:?}", self) }
 }
