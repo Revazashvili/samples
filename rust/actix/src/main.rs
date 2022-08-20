@@ -23,11 +23,13 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(app_state.clone())
             .route("/ping", web::get().to(|| async { "pong" }))
-            .service(post_ticket)
-            .service(get_tickets)
-            .service(get_ticket)
-            .service(update_ticket)
-            .service(delete_ticket)
+            .service(
+                web::scope("/api")
+                .service(post_ticket)
+                .service(get_tickets)
+                .service(get_ticket)
+                .service(update_ticket)
+                .service(delete_ticket))
     })
     .bind(("127.0.0.1", 7878))?
     .run()
