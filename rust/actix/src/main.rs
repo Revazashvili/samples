@@ -32,12 +32,17 @@ async fn main() -> std::io::Result<()> {
 }
 
 #[post("/tickets")]
-async fn post_ticket(req: HttpRequest,ticket: web::Json<Ticket>,data: web::Data<AppState>) -> impl Responder{
+async fn post_ticket(req: HttpRequest,ticket: web::Json<Ticket>,data: web::Data<AppState>) -> impl Responder {
     println!("{:?}",ticket);
     let new_ticket = Ticket::new(ticket.id, String::from(&ticket.author));    
     let mut tickets = data.tickets.lock().unwrap();
-    tickets.push(new_ticket.clone());
-    new_ticket.respond_to(&req)
+
+    let response = serde_json::to_string(&new_ticket).unwrap();
+
+    tickets.push(new_ticket);
+            
+    HttpResponse::Created()
+        .content_type(ContentType::json()).body(response)
 }
 
 #[get("/tickets")]
