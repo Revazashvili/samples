@@ -2,7 +2,8 @@ mod ticket;
 
 use actix_web::{web,HttpServer,App};
 use std::sync::Mutex;
-use ticket::*;
+use ticket::models::Ticket;
+use ticket::config;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
