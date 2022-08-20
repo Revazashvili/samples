@@ -22,6 +22,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(app_state.clone())
             .service(post_ticket)
+            .service(get_tickets)
     })
     .bind(("127.0.0.1", 7878))?
     .run()
@@ -35,6 +36,17 @@ async fn post_ticket(req: HttpRequest,ticket: web::Json<Ticket>,data: web::Data<
     let mut tickets = data.tickets.lock().unwrap();
     tickets.push(new_ticket.clone());
     new_ticket.respond_to(&req)
+}
+
+#[get("/tickets")]
+async fn get_tickets(data: web::Data<AppState>) -> impl Responder{
+    let tickets = data.tickets.lock().unwrap();
+    
+    let response = serde_json::to_string(tickets.as_slice()).unwrap();
+
+    HttpResponse::Ok()
+        .content_type(ContentType::json())
+        .body(response)
 }
 
 struct AppState{
@@ -53,7 +65,7 @@ impl Ticket{
 
 impl Responder for Ticket {
     type Body = BoxBody;
-    
+
     fn respond_to(self, _req: &HttpRequest) -> HttpResponse<Self::Body> {
         let res_body = serde_json::to_string(&self).unwrap();
         HttpResponse::Ok()
