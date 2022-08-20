@@ -25,6 +25,7 @@ async fn main() -> std::io::Result<()> {
             .service(get_tickets)
             .service(get_ticket)
             .service(update_ticket)
+            .service(delete_ticket)
     })
     .bind(("127.0.0.1", 7878))?
     .run()
@@ -95,6 +96,26 @@ async fn update_ticket(data: web::Data<AppState>, id: web::Path<u32>, ticket: we
             tickets[id] = new_ticket;
             Ok(HttpResponse::Ok()
             .content_type(ContentType::json()).body(response))
+        },
+        None => Err(ErrNoId{
+            id: ticket_id,
+            err: String::from("Ticket not found"),
+        })
+    }
+}
+
+#[delete("/tickets/{id}")]
+async fn delete_ticket(id:web::Path<u32>,data: web::Data<AppState>) -> Result<Ticket,ErrNoId> {
+    let ticket_id = *id;
+    let mut tickets = data.tickets.lock().unwrap();
+
+    let position = tickets.iter()
+        .position(|x| x.id == ticket_id);
+    
+    match position{
+        Some(id) => {
+            let deleted_ticket = tickets.remove(id);
+            Ok(deleted_ticket)
         },
         None => Err(ErrNoId{
             id: ticket_id,
