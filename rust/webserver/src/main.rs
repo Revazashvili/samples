@@ -11,7 +11,6 @@ fn main() -> std::io::Result<()> {
             Err(error) => eprintln!("connection failed: {}", error),
         }
     }
-    println!("Hello, world!");
     Ok(())
 }
 
