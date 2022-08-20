@@ -14,7 +14,7 @@ async fn main() -> std::io::Result<()> {
     let app_state = web::Data::new(AppState{
         tickets: Mutex::new(vec![
             Ticket::new(1,String::from("Jane Doe")),
-            Ticket::new(1,String::from("Patrick Star"))
+            Ticket::new(2,String::from("Patrick Star"))
         ])
     });
 
@@ -23,6 +23,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(app_state.clone())
             .service(post_ticket)
             .service(get_tickets)
+            .service(get_ticket)
     })
     .bind(("127.0.0.1", 7878))?
     .run()
@@ -47,6 +48,26 @@ async fn get_tickets(data: web::Data<AppState>) -> impl Responder{
     HttpResponse::Ok()
         .content_type(ContentType::json())
         .body(response)
+}
+
+#[get("/tickets/{id}")]
+async fn get_ticket(data: web::Data<AppState>, id: web::Path<u32>) -> Result<Ticket,ErrNoId>{
+    let tickets = data.tickets.lock().unwrap();
+    let ticket_id = *id;
+
+    let ticket = tickets.iter()
+        .find(|x| x.id == ticket_id);
+    
+    match ticket  {
+        Some(ticket) => Ok(Ticket{
+            id: ticket.id,
+            author: String::from(&ticket.author),
+        }),
+        None => Err(ErrNoId{
+            id: ticket_id,
+            err: String::from("Ticket not found"),
+        })
+    }
 }
 
 struct AppState{
