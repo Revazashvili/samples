@@ -24,6 +24,7 @@ async fn main() -> std::io::Result<()> {
             .service(post_ticket)
             .service(get_tickets)
             .service(get_ticket)
+            .service(update_ticket)
     })
     .bind(("127.0.0.1", 7878))?
     .run()
@@ -63,6 +64,33 @@ async fn get_ticket(data: web::Data<AppState>, id: web::Path<u32>) -> Result<Tic
             id: ticket.id,
             author: String::from(&ticket.author),
         }),
+        None => Err(ErrNoId{
+            id: ticket_id,
+            err: String::from("Ticket not found"),
+        })
+    }
+}
+
+#[put("tickets/{id}")]
+async fn update_ticket(data: web::Data<AppState>, id: web::Path<u32>, ticket: web::Json<Ticket>) -> Result<HttpResponse,ErrNoId> {
+    let ticket_id = *id;
+    let mut tickets = data.tickets.lock().unwrap();
+
+    let new_ticket = Ticket{
+        id: ticket.id,
+        author: String::from(&ticket.author),
+    };
+
+    let position = tickets.iter()
+        .position(|x| x.id == ticket_id);
+    
+    match position{
+        Some(id) => {
+            let response = serde_json::to_string(&new_ticket).unwrap();
+            tickets[id] = new_ticket;
+            Ok(HttpResponse::Ok()
+            .content_type(ContentType::json()).body(response))
+        },
         None => Err(ErrNoId{
             id: ticket_id,
             err: String::from("Ticket not found"),
