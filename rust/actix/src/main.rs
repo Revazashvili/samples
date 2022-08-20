@@ -4,6 +4,7 @@ use actix_web::{web,HttpServer,App};
 use std::sync::Mutex;
 use ticket::models::Ticket;
 use ticket::config;
+use std::time::Duration;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -21,6 +22,8 @@ async fn main() -> std::io::Result<()> {
             .route("/ping", web::get().to(|| async { "pong" }))
             .configure(config)
     })
+    .keep_alive(Duration::from_secs(100))
+    .shutdown_timeout(60)
     .bind(("127.0.0.1", 7878))?
     .run()
     .await
