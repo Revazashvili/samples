@@ -1,6 +1,7 @@
 use actix_web::{get, post, put, delete, web, HttpResponse, Responder};
 use actix_web::http::header::ContentType;
 use serde_json::json;
+use log::info;
 
 use crate::ticket::models::*;
 use super::super::AppState;
@@ -31,7 +32,10 @@ async fn get_ticket(data: web::Data<AppState>, id: web::Path<u32>) -> Result<Tic
 
     match tickets.iter().find(|x| x.id == ticket_id)  {
         Some(ticket) => Ok(Ticket{ id: ticket.id,author: String::from(&ticket.author)}),
-        None => Err(ErrNoId{id: ticket_id,err: String::from("Ticket not found")})
+        None => {
+            info!("Ticket with id {} not found", ticket_id);
+            Err(ErrNoId{id: ticket_id,err: String::from("Ticket not found")})
+        }
     }
 }
 
@@ -52,7 +56,10 @@ async fn update_ticket(data: web::Data<AppState>, id: web::Path<u32>, ticket: we
             Ok(HttpResponse::Ok()
             .content_type(ContentType::json()).body(response))
         },
-        None => Err(ErrNoId{id: ticket_id,err: String::from("Ticket not found")})
+        None => {
+            info!("Ticket with id {} not found", ticket_id);
+            Err(ErrNoId{id: ticket_id,err: String::from("Ticket not found")})
+        }
     }
 }
 
@@ -63,6 +70,9 @@ async fn delete_ticket(id:web::Path<u32>,data: web::Data<AppState>) -> Result<Ti
 
     match tickets.iter().position(|x| x.id == ticket_id) {
         Some(id) => Ok(tickets.remove(id)),
-        None => Err(ErrNoId{id: ticket_id,err: String::from("Ticket not found")})
+        None => {
+            info!("Ticket with id {} not found", ticket_id);
+            Err(ErrNoId{id: ticket_id,err: String::from("Ticket not found")})
+        }
     }
 }

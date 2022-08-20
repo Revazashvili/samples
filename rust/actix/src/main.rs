@@ -1,14 +1,19 @@
 mod ticket;
 
-use actix_web::{web,HttpServer,App};
+use actix_web::{web,HttpServer,App,middleware::Logger};
 use std::sync::Mutex;
 use ticket::models::Ticket;
 use ticket::config;
 use std::time::Duration;
+use std::env;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    println!("server starting...");
+    
+    env::set_var("RUST_BACKTRACE", "1");
+    env::set_var("RUST_LOG", "info");
+    env_logger::init();
+
     let app_state = web::Data::new(AppState{
         tickets: Mutex::new(vec![
             Ticket::new(1,String::from("Jane Doe")),
@@ -17,7 +22,9 @@ async fn main() -> std::io::Result<()> {
     });
 
     HttpServer::new(move || {
+        let logger = Logger::default();
         App::new()
+            .wrap(logger)
             .app_data(app_state.clone())
             .route("/ping", web::get().to(|| async { "pong" }))
             .configure(config)
