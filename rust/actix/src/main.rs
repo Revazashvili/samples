@@ -22,6 +22,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(app_state.clone())
+            .route("/ping", web::get().to(|| async { "pong" }))
             .service(post_ticket)
             .service(get_tickets)
             .service(get_ticket)
