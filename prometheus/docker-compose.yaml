@@ -1,0 +1,10 @@
+version: "3"
+services:
+  dotnet:
+    build:
+      context: ./dotnet
+    ports:
+      - 5000:80
+    container_name: dotnet
+    image: dotnet
+    
