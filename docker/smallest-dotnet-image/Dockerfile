@@ -18,5 +18,4 @@ RUN dotnet publish "smallest-dotnet-image.csproj" -f net6.0 -c Release -o /out -
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /out .
-RUN ls
 ENTRYPOINT [ "./smallest-dotnet-image" ]
