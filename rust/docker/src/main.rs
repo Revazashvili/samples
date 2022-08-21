@@ -12,7 +12,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move ||{
         App::new().wrap(Logger::default()).route("/ping",web::get().to(|| async {"pong"}))
         })
-        .bind("127.0.0.1:7878")?
+        .bind("0.0.0.0:8080")?
         .run()
         .await
 }
