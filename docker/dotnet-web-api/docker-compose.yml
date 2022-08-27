@@ -1,0 +1,8 @@
+version: '3.9'
+services:
+  dotnet-web-api:
+    build:
+      context: .
+    container_name: dotnet-web-api
+    ports:
+      - 8083:80
