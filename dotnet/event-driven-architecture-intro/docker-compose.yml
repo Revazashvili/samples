@@ -8,4 +8,11 @@ services:
       context: src/UserService/
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-    
+  post-service:
+    container_name:   post-service
+    ports:
+      - "8089:80"
+    build:
+      context: src/PostService/
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
