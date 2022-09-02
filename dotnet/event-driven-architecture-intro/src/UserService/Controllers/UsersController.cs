@@ -22,7 +22,7 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<User?>> GetUser(int id) => await _context.Users.FindAsync(id);
 
     [HttpPost]
-    public async Task<ActionResult<User>> PostUser(User user)
+    public async Task<ActionResult<User>> PostUser([FromBody]User user)
     {
         await _context.AddAsync(user);
         await _context.SaveChangesAsync();
@@ -30,7 +30,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<ActionResult> PutUser(User user)
+    public async Task<ActionResult> PutUser([FromBody]User user)
     {
         _context.Entry(user).State = EntityState.Modified;
         await _context.SaveChangesAsync();
