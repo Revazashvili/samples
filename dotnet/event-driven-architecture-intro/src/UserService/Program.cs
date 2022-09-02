@@ -12,7 +12,8 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    var userServiceContext = app.Services.GetService<UserServiceContext>()!;
+    var serviceScope = app.Services.CreateAsyncScope();
+    var userServiceContext = serviceScope.ServiceProvider.GetRequiredService<UserServiceContext>();
     await userServiceContext.Database.EnsureCreatedAsync();
     app.UseSwagger();
     app.UseSwaggerUI();
