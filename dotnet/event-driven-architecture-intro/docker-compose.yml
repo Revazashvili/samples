@@ -1,0 +1,11 @@
+version: '3.9'
+services:
+  user-service:
+    container_name:   user-service
+    ports:
+      - "8088:80"
+    build:
+      context: src/UserService/
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    
