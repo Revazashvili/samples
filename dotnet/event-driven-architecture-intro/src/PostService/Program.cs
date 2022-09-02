@@ -1,25 +1,22 @@
+using Microsoft.EntityFrameworkCore;
+using PostService.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddDbContext<PostServiceContext>(options =>
+    options.UseSqlite(@"Data Source=post.db"));
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    var serviceScope = app.Services.CreateAsyncScope();
+    var postServiceContext = serviceScope.ServiceProvider.GetRequiredService<PostServiceContext>();
+    await postServiceContext.Database.EnsureCreatedAsync();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
 app.MapControllers();
-
-app.Run();
+await app.RunAsync();
