@@ -27,11 +27,22 @@ public class PostController : ControllerBase
 
 
     [HttpPost]
-    public async Task<ActionResult<Post>> PostPost([FromBody] Post post)
+    public async Task<ActionResult<Post>> PostPost([FromBody] NewPost post)
     {
-        await _context.AddAsync(post);
+        var result = await _context.AddAsync(new Post
+        {
+            UserId = post.UserId,
+            Content = post.Content,
+            Title = post.Title
+        });
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetPost), new { id = post.PostId, post });
+        return CreatedAtAction(nameof(GetPost), new { id = result.Entity.PostId },post);
     }
+}
 
+public class NewPost
+{
+    public string Title { get; set; }
+    public string Content { get; set; }
+    public int UserId { get; set; }
 }
