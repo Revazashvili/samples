@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using UserService.Data;
+using UserService.Integration;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSingleton<IPublisher, Publisher>();
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<UserServiceContext>(options =>
