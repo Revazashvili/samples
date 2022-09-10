@@ -1,33 +1,33 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Text;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Generator;
-
-public class MainSyntaxReceiver : ISyntaxReceiver
-{
-    public int Index { get; set; }
-    public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
-    {
-        if (syntaxNode is ClassDeclarationSyntax)
-        {
-            File.WriteAllText($@"/home/revazashvili/projects/samples/dotnet/source-generator-intro/src/Generator/{Index}.txt",syntaxNode.GetText().ToString());
-            Index++;
-        }
-    }
-}
 
 [Generator]
 public class FunctionGenerator : ISourceGenerator
 {
     public void Execute(GeneratorExecutionContext context)
     {
-        var output = @"
-public class Test
-{
-    public static void P() => Console.WriteLine(""Hello World!"");
-}
-";
-        context.AddSource("hello.g.cs", output);
+        var receiver = context.SyntaxReceiver as MainSyntaxReceiver;
+        foreach (var giveth in receiver.Giveths.Captures)
+        {
+            var definition = receiver.Definitions.Captures.FirstOrDefault(capture => capture.Key == giveth.TargetImplementation);
+            if(definition is null)
+                continue;
+            var output = giveth.Class
+                .WithMembers(new(CreateMethodDeclaration(giveth.Method, definition.Method)))
+                .NormalizeWhitespace();
+            context.AddSource($"{giveth.Class.Identifier.ValueText}.g.cs", output.GetText(Encoding.UTF8));
+        }
+    }
+
+    private MethodDeclarationSyntax CreateMethodDeclaration(MethodDeclarationSyntax givethMethod,MethodDeclarationSyntax defMethod)
+    {
+        return MethodDeclaration(givethMethod.ReturnType, givethMethod.Identifier)
+            .WithModifiers(givethMethod.Modifiers)
+            .WithBody(defMethod.Body);
     }
 
     public void Initialize(GeneratorInitializationContext context)
@@ -35,5 +35,3 @@ public class Test
         context.RegisterForSyntaxNotifications(() => new MainSyntaxReceiver());
     }
 }
-
-

@@ -1,7 +1,0 @@
-
-
-public partial class Car
-{
-    [Give("Print")]
-    partial void Do();
-}

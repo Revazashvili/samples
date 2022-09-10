@@ -2,13 +2,13 @@
 
 using App;
 
-Test.P();
-
+var car = new Car();
+car.Do();
 
 public partial class Car
 {
     [Give("Print")]
-    partial void Do();
+    public partial void Do();
 }
 
 public class Functions
