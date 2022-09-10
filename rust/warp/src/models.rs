@@ -1,6 +1,6 @@
 use serde::{Serialize,Deserialize};
 
-#[derive(Clone,Debug,Serialize,Deserialize)]
+#[derive(Clone,Debug,Default,Serialize,Deserialize)]
 pub struct Customer{
     /// A unique identifier for this customer.
     pub guid: String,
